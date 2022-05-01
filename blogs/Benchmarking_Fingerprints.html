@@ -137,11 +137,11 @@
       means = [np.mean(a) for a in arrays]
       s_means = np.sort(means)
       sort_indexes = [np.where(mean == means)[0][0] for mean in s_means]
-      slis = [np.sli(arrays[i]) for i in sort_indexes]
+      sdevs = [np.std(arrays[i]) for i in sort_indexes]
       labels = [list(times.keys())[i] for i in sort_indexes]
 
       fig, ax = plt.subplots()
-      ax.bar(x_pos, s_means, yerr=slis, align='center', alpha=0.5, ecolor='black', capsize=10)
+      ax.bar(x_pos, s_means, yerr=sdevs, align='center', alpha=0.5, ecolor='black', capsize=10)
       ax.set_ylabel('Seconds taken for 5000 molecules')
       ax.set_xticks(x_pos)
       ax.set_xticklabels(labels)
