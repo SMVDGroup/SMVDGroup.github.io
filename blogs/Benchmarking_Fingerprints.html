@@ -23,37 +23,20 @@
     <div id="blogbox">
       <h1> Speedtesting Chemical Fingerprints </h1>
       <hr>
-      <p> Chemical fingerprints are a method of representing chemical compounds as bit vectors. As such, they are extremely useful for machine learning approaches to cheminformatics and drug discovery. Many fingerprinting methods have been investigated and published, with pros and cons which I'm looking forward to discussing in another blog. However, the purpose of article is a simple speedtest to determine the most efficient fingerprinting method. Benchmarking this was inspired by a recent pre-processing step in a current project where we needed to represent a dataset of over 2 million ligands as fingerprints; obviously here, speed was a key consideration. In the end, we pivoted from a fingerprinting approach to a scaffolding approach to examine molecule substructures. This doubled as a performance increase, and an easy way to group similar molecules without having to think about avoid an exhaustive (and unfeasible) similarity comparison</p>
+      <p> Chemical fingerprints are a method of representing chemical compounds as bit vectors. As such, they are extremely useful for machine learning approaches to cheminformatics and drug discovery. Many fingerprinting methods have been investigated and published, with pros and cons which I'm looking forward to discussing in another blog. However, the purpose of this article is a simple speedtest to determine the most efficient fingerprinting method. Benchmarking this was inspired by a recent pre-processing step in a current project where we needed to represent a dataset of over 2 million ligands as fingerprints; obviously here, speed was a key consideration. In the end, we pivoted from a fingerprinting approach to a scaffolding approach to examine molecule substructures. This doubled as a performance increase, and an easy way to group similar molecules without having to think about an exhaustive (and unfeasible) similarity comparison.</p>
   <h2>Fingerprinting Options</h2>
-      <p> In this benchmark we're just going to look at the options provided by the fantastic open-source cheminformatics tool RDKit. From the documentation, they offer 7 different built-in fingerprinting approaches:</p>
-      <table>
-    <tr>
-        <td>Fingerprint</td>
-    </tr>
-    <tr>
-        <td>RDKit</td>
-    </tr>
-    <tr>
-        <td>Atom Pairs</td>
-    </tr>
-    <tr>
-        <td>Topological Torsions</td>
-    </tr>
-    <tr>
-        <td>MACCS keys</td>
-    </tr>
-    <tr>
-        <td>Morgan/Circular</td>
-    </tr>
-    <tr>
-        <td>Pattern</td>
-    </tr>
-    <tr>
-        <td>Extended Reduced Graphs</td>
-    </tr>
-</table>
+      <p> In this benchmark we're just going to look at the options provided by the open-source cheminformatics tool RDKit. From the documentation, they offer 7 different built-in fingerprinting approaches:</p>
+      <ul>
+        <li>RDKit Fingerprints</li>
+        <li>Atom Pairs</li>
+        <li>Topological Torsions</li>
+        <li>MACCS keys</li>
+        <li>Morgan/Circular</li>
+        <li>Pattern</li>
+        <li>Extended Reduced Graphs</li>
+      </ul>
 <h2> Benchmark dataset </h2>
-<p>To get a fair estimate of the speed of generating these fingerprints, we need a dataset of small molecule compounds to use as a benchmark. In this case, we downloaded the ChEMBL database (2,136,187 molecules) and sampled 5000 molecules using the following python code:<p>
+<p>To get a fair estimate of the speed of generating these fingerprints, we need a dataset of small molecule compounds to use as a benchmark. In this case, we downloaded the ChEMBL database (2,136,187 molecules) and sampled 5000 random molecules using the following python code:<p>
 <pre>
   <code class="language-python">
     import time
@@ -154,11 +137,11 @@
       means = [np.mean(a) for a in arrays]
       s_means = np.sort(means)
       sort_indexes = [np.where(mean == means)[0][0] for mean in s_means]
-      stds = [np.std(arrays[i]) for i in sort_indexes]
+      slis = [np.sli(arrays[i]) for i in sort_indexes]
       labels = [list(times.keys())[i] for i in sort_indexes]
 
       fig, ax = plt.subplots()
-      ax.bar(x_pos, s_means, yerr=stds, align='center', alpha=0.5, ecolor='black', capsize=10)
+      ax.bar(x_pos, s_means, yerr=slis, align='center', alpha=0.5, ecolor='black', capsize=10)
       ax.set_ylabel('Seconds taken for 5000 molecules')
       ax.set_xticks(x_pos)
       ax.set_xticklabels(labels)
