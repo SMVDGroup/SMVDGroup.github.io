@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <link rel="icon" type="image/ico" href="27639a542cbe899727d5d93a224d547e486db810/images/circle.ico" sizes="16x16">
+  <title>SMVDGroup</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <div class="topnav">
+   <a href="../home.html"><b>SMVDGroup</b></a>
+   <a href="../publications.html">Publications</a>
+   <a href="../members.html">Members</a>
+   <a class="active" href="../blog.html">Blog</a>
+   <a href="../contact.html">Contact</a>
+  </div>
+</head>
+<body>
+  <div id="particles-js">
+    <div id="blogbox">
+      <h1> Speedtesting Chemical Fingerprints </h1>
+      <hr>
+      <p> Chemical fingerprints are a method of representing chemical compounds as bit vectors. As such, they are extremely useful for machine learning approaches to cheminformatics and drug discovery. Many fingerprinting methods have been investigated and published, with pros and cons which I'm looking forward to discussing in another blog. However, the purpose of article is a simple speedtest to determine the most efficient fingerprinting method. Benchmarking this was inspired by a recent pre-processing step in a current project where we needed to represent a dataset of over 2 million ligands as fingerprints; obviously here, speed was a key consideration. In the end, we pivoted from a fingerprinting approach to a scaffolding approach to examine molecule substructures. This doubled as a performance increase, and an easy way to group similar molecules without having to think about avoid an exhaustive (and unfeasible) similarity comparison</p>
+  <h2>Fingerprinting Options</h2>
+      <p> In this benchmark we're just going to look at the options provided by the fantastic open-source cheminformatics tool RDKit. From the documentation, they offer 7 different built-in fingerprinting approaches:</p>
+      <table>
+    <tr>
+        <td>Fingerprint</td>
+    </tr>
+    <tr>
+        <td>RDKit</td>
+    </tr>
+    <tr>
+        <td>Atom Pairs</td>
+    </tr>
+    <tr>
+        <td>Topological Torsions</td>
+    </tr>
+    <tr>
+        <td>MACCS keys</td>
+    </tr>
+    <tr>
+        <td>Morgan/Circular</td>
+    </tr>
+    <tr>
+        <td>Pattern</td>
+    </tr>
+    <tr>
+        <td>Extended Reduced Graphs</td>
+    </tr>
+</table>
+<h2> Benchmark dataset </h2>
+<p>To get a fair estimate of the speed of generating these fingerprints, we need a dataset of small molecule compounds to use as a benchmark. In this case, we downloaded the ChEMBL database (2,136,187 molecules) and sampled 5000 molecules using the following python code:<p>
+<pre>
+  <code class="language-python">
+    import time
+    import random
+    from rdkit import Chem
+
+    benchmark_molecules = list()
+
+    # load the molecules as a generator object
+    chembl_mols = Chem.SDMolSupplier('chembl_30.sdf')
+
+    # sample 5000 random molecules with a constant seed for reproducibility
+    random.seed(42)
+
+    total_molecules = 2136187
+
+    benchmark_set_indexes = random.sample(range(1, total_molecules), 5000)
+
+    for index in benchmark_set_indexes:
+        benchmark_molecules.append(chembl_mols[index])
+  </code>
+</pre>
+<p> Then for each fingerprint, we can use this function to time three runs of fingerprinting the whole benchmark set: </p>
+<pre>
+  <code class="language-python">
+    def time_fingerprint(fingerprint, radius):
+        seconds = list()
+        for i in range(3):
+            start = time.time()
+            if radius is None:
+                fingerprints = [fingerprint(mol) for mol in benchmark_molecules]
+            else:
+                fingerprints = [fingerprint(mol, radius) for mol in benchmark_molecules]
+            end = time.time()
+            run_time = end - start
+            seconds.append(run_time)
+        return seconds
+
+    times = dict()
+  </code>
+</pre>
+<h3> RDKit Fingerprints: </h3>
+<pre>
+  <code class="language-python">
+    times['RDKit'] = time_fingerprint(Chem.RDKFingerprint, None)
+  </code>
+</pre>
+<h3> Atom Pair Fingerprints: </h3>
+<pre>
+  <code class="language-python">
+    from rdkit.Chem.AtomPairs import Pairs
+    times['AtomPair']= time_fingerprint(Pairs.GetAtomPairFingerprint, None)
+  </code>
+</pre>
+<h3> Topological Torsion Fingerprints: </h3>
+<pre>
+  <code class="language-python">
+    from rdkit.Chem.AtomPairs import Torsions
+    times['Torsions'] = time_fingerprint(Torsions.GetTopologicalTorsionFingerprintAsIntVect, None)
+  </code>
+</pre>
+<h3> Morgan Fingerprints: </h3>
+<pre>
+  <code class="language-python">
+    from rdkit.Chem import AllChem
+    times['Morgan'] = time_fingerprint(AllChem.GetMorganFingerprint, 2)
+  </code>
+</pre>
+<h3> MACCS Fingerprints: </h3>
+<pre>
+  <code class="language-python">
+    from rdkit.Chem import MACCSkeys
+    times['MACCS'] = time_fingerprint(MACCSkeys.GenMACCSKeys, None)
+  </code>
+</pre>
+<h3> ErG Fingerprints: </h3>
+<pre>
+  <code class="language-python">
+    from rdkit.Chem import rdReducedGraphs
+    times['ERG'] = time_fingerprint(rdReducedGraphs.GetErGFingerprint, None)
+  </code>
+</pre>
+<h3> Pattern Fingerprints: </h3>
+<pre>
+  <code class="language-python">
+    from rdkit.Chem import rdmolops
+    times['Pattern'] = time_fingerprint(rdmolops.PatternFingerprint, None)
+  </code>
+</pre>
+<h2> Benchmark Results </h2>
+  <p> We can then plot the average times to see which fingerprint would be the most efficient when fingerprinting a huge library of small molecules</p>
+  <pre>
+    <code class="language-python">
+      import numpy as np
+      import matplotlib.pyplot as plt
+
+      arrays = [np.asarray(v) for v in times.values()]
+      means = [np.mean(a) for a in arrays]
+      s_means = np.sort(means)
+      sort_indexes = [np.where(mean == means)[0][0] for mean in s_means]
+      stds = [np.std(arrays[i]) for i in sort_indexes]
+      labels = [list(times.keys())[i] for i in sort_indexes]
+
+      fig, ax = plt.subplots()
+      ax.bar(x_pos, s_means, yerr=stds, align='center', alpha=0.5, ecolor='black', capsize=10)
+      ax.set_ylabel('Seconds taken for 5000 molecules')
+      ax.set_xticks(x_pos)
+      ax.set_xticklabels(labels)
+      ax.yaxis.grid(True)
+
+      plt.show()
+    </code>
+  </pre>
+  <img class="center" src="fingerprint_benchmark.png" style="width:1000px;height:700px;">
+  <p> So, Atom Pair fingerprints look to be the fastest (Marginally). It looks like circular Morgan fingerprints are the most efficient representation if you're low on compute, as they encode more information than atom pair fingerprints at roughly the same cost.</p>
+  <hr>
+  <br>
+  <br>
+  <br>
+    </div>
+  </div>
+
+  <!-- scripts -->
+  <script src="../js/particles.js"></script>
+  <script src="../js/app.js"></script>
+<div id="footer">
+  <p class="footer-text"><b> Site coded my Miles McGibbon using particles.js & highlight.js </b></p>
+</div>
+</body>
+</html>

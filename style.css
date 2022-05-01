@@ -249,3 +249,10 @@ p.footer-text {
   font-family: 'Courier New', monospace;
   font-size: 12px;
 }
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}

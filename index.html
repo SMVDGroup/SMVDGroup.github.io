@@ -1,131 +1,56 @@
-
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
-<link rel="icon" type="image/ico" href="27639a542cbe899727d5d93a224d547e486db810/images/circle.ico" sizes="16x16">
-<link rel="stylesheet" href="27639a542cbe899727d5d93a224d547e486db810/style.css">
-<title>SMVDGroup</title>
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <link rel="icon" type="image/ico" href="images/circle.ico" sizes="16x16">
+  <title>SMVDGroup</title>
+  <link rel="stylesheet" href="style.css">
+  <div class="topnav">
+   <a class="active" href="index.html"><b>SMVDGroup</b></a>
+   <a href="publications.html">Publications</a>
+   <a href="members.html">Members</a>
+   .grid-<a href="blog.html">Blog</a>
+   <a href="contact.html">Contact</a>
+  </div>
 </head>
-
-<style>
-
-.box {
-	border-radius: 3px;
-	background: rgba(101, 101, 101, 0.7); margin: auto; padding: 12px;
-}
-
-.lightbox {
-	zoom: 1.5;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: rgba(10, 10, 10, 0.8);
-	text-align: center;
-	margin: auto;
-
-}
-
-div.horizontal {
-	display: flex;
-	justify-content: center;
-	height: 100%;
-}
-
-div.vertical {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	width: 100%;
-}
-
-::-webkit-input-placeholder {
-   color: #955;
-   text-align: center;
-}
-
-::-moz-placeholder {
-   color: #955;
-   text-align: center;
-}
-
-:-ms-input-placeholder {
-   color: #955;
-   text-align: center;
-}
-
-</style>
-
 <body>
   <div id="particles-js">
-	<div id="loginbox" class="lightbox" >
-		<div class="horizontal">
-			<div class="vertical">
-				<div class="box">
-					<input style="margin: 16px; text-align: center;" id="password" type="password" placeholder="password" /> <br />
-					<button id="loginbutton" type="button">Enter</button>
-					<p id="wrongPassword" style="display: none">wrong password</p>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="slideshow">
+      <img class="mySlides" src="images/000.png">
+      <img class="mySlides" src="images/001.png">
+      <img class="mySlides" src="images/002.png">
+      <img class="mySlides" src="images/003.png">
+      <img class="mySlides" src="images/004.png">
+    </div>
+    <div id="paragraph">
+      <p style="text-align: center;color:#ffffff;font-size:20px;"> <b>SMVD Group</b> researches applications of machine learning to improve the accuracy of virtual screening for computational drug discovery</p>
+      <p style="text-align: center;color:#ffffff;font-size:20px;"> All our software is released open-source on our <a href="https://github.com/SMVDGroup"><b>GitHub </b><img src="images/github-logo.png"></a></p>
+    </div>
+  </div>
+
+  <!-- scripts -->
+  <script src="js/particles.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+var slideIndex = 0;
+carousel();
+
+function carousel() {
+  var i;
+  var x = document.getElementsByClassName("mySlides");
+  for (i = 0; i < x.length; i++) {
+    x[i].style.display = "none";
+  }
+  slideIndex++;
+  if (slideIndex > x.length) {slideIndex = 1}
+  x[slideIndex-1].style.display = "block";
+  setTimeout(carousel, 1000); // Change image every 2 seconds
+}
+</script>
+<div id="footer">
+  <p class="footer-text"><b> Site code by Miles McGibbon using particles.js & highlight.js </b></p>
 </div>
-
-
-  <script src="27639a542cbe899727d5d93a224d547e486db810/js/particles.js"></script>
-  <script src="27639a542cbe899727d5d93a224d547e486db810/js/app.js"></script>
-	<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-
-
-	 <script type="text/javascript" src="https://rawcdn.githack.com/chrisveness/crypto/7067ee62f18c76dd4a9d372a00e647205460b62b/sha1.js"></script>
-
-	<script type="text/javascript">
-	"use strict";
-
-
-	function loadPage(pwd) {
-
-		var hash= pwd;
-		hash= Sha1.hash(pwd);
-		var url= hash + "/index.html";
-
-		$.ajax({
-			url : url,
-			dataType : "html",
-			success : function(data) {
-
-				window.location= url;
-
-			},
-			error : function(xhr, ajaxOptions, thrownError) {
-
-
-				parent.location.hash= hash;
-
-				//$("#wrongPassword").show();
-				$("#password").attr("placeholder","wrong password");
-				$("#password").val("");
-			}
-		});
-	}
-
-
-	$("#loginbutton").on("click", function() {
-		loadPage($("#password").val());
-	});
-	$("#password").keypress(function(e) {
-		if (e.which == 13) {
-
-			loadPage($("#password").val());
-		}
-	});
-	$("#password").focus();
-
-	</script>
-
 </body>
 </html>
